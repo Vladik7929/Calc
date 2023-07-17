@@ -5,7 +5,7 @@ ROOT_WIDTH: int = 510
 ROOT_HEIGHT: int = 525
 
 BTN_NAMES: tuple[tuple[str, str, str, str]] = (
-('1', '2', '3', '+'), ('4', '5', '6', '-'), ('7', '8', '9', '*'), ('.', '0', '=', '/'))
+    ('1', '2', '3', '+'), ('4', '5', '6', '-'), ('7', '8', '9', '*'), ('.', '0', '=', '/'))
 
 root = tk.Tk()
 
@@ -21,20 +21,27 @@ class Calculator:
         """
         self.expression = ""
         self.entry = entry
+        self.stack = []
 
     def add_symbol(self, symbol: str) -> None:
         """
         Метод add_symbol добавляет символ к текущему выражению или вычисляет результат, если символ равен '='.
         :param symbol: символ для добавления или вычисления
         """
-        if symbol != '=':
+        if symbol != '=' and symbol != '⌫':  # changed here, added '⌫' for undo button
             self.expression += symbol  # Добавить символ к выражению
-        else:  # if '='
-            try:
-                result = self.calculate_expression()  # Вычислить результат
-                self.expression = str(result)  # Преобразовать результат в строку
-            except Exception:
-                self.expression = "Error"
+            self.stack.append(symbol)  # add symbol to the stack
+        else:
+            if symbol == '=':  # if '='
+                try:
+                    result = self.calculate_expression()  # Вычислить результат
+                    self.expression = str(result)  # Преобразовать результат в строку
+                except Exception:
+                    self.expression = "Error"
+            elif symbol == '⌫':  # if '⌫'
+                if self.stack:
+                    self.stack.pop()  # remove last symbol from the stack
+                    self.expression = ''.join(self.stack)  # update expression with symbols from the stack
 
         self.update_entry()
 
@@ -134,8 +141,7 @@ class App:
         self.root.mainloop()
 
 
-help(App)
-
 if __name__ == '__main__':
     app = App(root)
     app.run()
+
